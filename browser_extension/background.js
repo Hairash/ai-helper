@@ -10,13 +10,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-async function generateReply({ messages }) {
-  const res = await fetch("http://127.0.0.1:8000/ai_reply", {
+async function generateReply({ messages, command }) {
+  const API_BASE = "https://ai-helper-ia88.onrender.com";
+  const res = await fetch(`${API_BASE}/ai_reply`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ messages })
+    body: JSON.stringify({ messages, command })
   });
 
   if (!res.ok) {

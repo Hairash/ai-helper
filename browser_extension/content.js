@@ -31,23 +31,43 @@ function waitForElement(selector, timeout = 10000) {
   
       // Avoid injecting twice
       if (document.getElementById("ai-reply-button")) return;
-  
+
+      const container = document.createElement("div");
+      container.id = "ai-reply-container";
+      container.style.display = "flex";
+      container.style.alignItems = "center";
+      container.style.gap = "6px";
+      container.style.marginLeft = "8px";
+
+      const cmdInput = document.createElement("input");
+      cmdInput.id = "ai-reply-command";
+      cmdInput.type = "text";
+      cmdInput.placeholder = "e.g. Reject politely…";
+      cmdInput.style.padding = "4px 8px";
+      cmdInput.style.borderRadius = "4px";
+      cmdInput.style.border = "1px solid #ddd";
+      cmdInput.style.fontSize = "12px";
+      cmdInput.style.width = "200px";
+
       const btn = document.createElement("button");
       btn.id = "ai-reply-button";
       btn.textContent = "✨ AI reply";
-      btn.style.marginLeft = "8px";
       btn.style.padding = "4px 8px";
       btn.style.borderRadius = "4px";
       btn.style.border = "1px solid #ddd";
       btn.style.cursor = "pointer";
       btn.style.fontSize = "12px";
-  
-      // Put button close to the input toolbar
+      btn.style.color = "white";
+
+      container.appendChild(cmdInput);
+      container.appendChild(btn);
+
+      // Put container close to the input toolbar
       const toolbar = input.closest("form") || input.parentElement;
       if (toolbar) {
-        toolbar.appendChild(btn);
+        toolbar.appendChild(container);
       } else {
-        input.parentElement.appendChild(btn);
+        input.parentElement.appendChild(container);
       }
   
       btn.addEventListener("click", onAiReplyClick);
@@ -66,10 +86,12 @@ function waitForElement(selector, timeout = 10000) {
   
     try {
       const messages = collectConversationContext();
-  
+      const cmdInput = document.getElementById("ai-reply-command");
+      const command = cmdInput ? cmdInput.value.trim() : "";
+
       const response = await chrome.runtime.sendMessage({
         type: "generate_reply",
-        payload: { messages }
+        payload: { messages, command }
       });
   
       if (!response || !response.ok) {

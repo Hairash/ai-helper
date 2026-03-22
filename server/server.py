@@ -15,10 +15,6 @@ app.add_middleware(
 MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
 MISTRAL_URL = "https://api.mistral.ai/v1/chat/completions"
 
-# Your CV information
-CV_SUMMARY = """
-Ivan Grebenshchikov is a Senior Software Engineer with over 6 years of experience specializing in web and backend development, microservices design, and team leadership. He has worked at companies like CloudBlue, Yandex, and Voicelink, contributing to large-scale projects using Python, Django, FastAPI, PostgreSQL, and React.js. His expertise includes system architecture, performance optimization, and automation. Ivan is proficient in multiple programming languages and technologies, including Python, JavaScript, SQL, Docker, Redis, and RabbitMQ. He has a strong background in teaching and mentoring, and he is actively seeking opportunities in Europe.
-"""
 
 def build_conversation_text(messages):
     return "\n".join(
@@ -29,8 +25,11 @@ def build_conversation_text(messages):
 @app.post("/ai_reply")
 def ai_reply(payload: dict):
     messages = payload.get("messages", [])
+    command = payload.get("command", "")
     # DEBUG: print the messages in the formatted way
     print('[DEBUG] messages:\n', "\n".join(f'{m["role"]}: {m["text"]}' for m in messages))
+    if command:
+        print('[DEBUG] command:', command)
 
     if not messages:
         raise HTTPException(status_code=400, detail="No messages provided")
@@ -52,6 +51,9 @@ Additional Experience (familiar but not expert):
 - MongoDB
 - Cloud Platforms (Azure, AWS, GCP)
 - Rust, C++, Java, C#, PHP
+
+Contact information:
+email: i1grebenshchikov@gmail.com
 """
 
 # 6. Do NOT add a greeting if the recruiter already wrote one.
@@ -102,6 +104,7 @@ All the best, Ivan
 Current conversation:
 {convo}
 ---
+{f"Additional instruction from the user: {command}" + chr(10) + "---" + chr(10) if command else ""}
 Now generate a reply to the recruiter's last message.
     """
 
